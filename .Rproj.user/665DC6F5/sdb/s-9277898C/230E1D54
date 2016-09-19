@@ -1,12 +1,12 @@
 {
-    "contents" : "# this is a test\n# this is a second test!\n# this is a third test\n# this is a new test\n# i do not know!",
+    "contents" : "# this is a test\n# this is a second test!\n# this is a third test\n# this is a new test\n# i do not know!# change",
     "created" : 1474271696108.000,
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "418002607",
+    "hash" : "1935826220",
     "id" : "230E1D54",
-    "lastKnownWriteTime" : 1474271720,
+    "lastKnownWriteTime" : 1474272178,
     "path" : "~/quant_czj/test.R",
     "project_path" : "test.R",
     "properties" : {

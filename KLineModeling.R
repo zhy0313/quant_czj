@@ -5,8 +5,9 @@ library(Rgraphviz)
 library(gRain)
 
 xauusd.all<-read.csv("F:/datasets/XAUUSD1.csv",header = FALSE)
+xauusd.all<-read.csv("F:/datasets/stock_600000.csv",header = FALSE)
 names(xauusd.all)<-c("Date","Hours","Open","High","Low","Close","Volumes")
-xauusd<-xauusd.all[1:10000,]
+xauusd<-xauusd.all
 
 # 计算新指标：移动均线指标MA，相邻指标NE
 build_new_index<-function(x){
@@ -28,11 +29,11 @@ build_new_index<-function(x){
 # 离散化指标
 discrete_index<-function(x){
   y<-data.frame(CO=x$CO,UStoCO=x$UStoCO,DStoCO=x$DStoCO,NE=x$NE,corner=x$corner,location=x$location)
-  #   y$CO[x$CO<=-0.03]="Bad1"
-  #   y$CO[x$CO>-0.03&x$CO<=-0.00001]="Bad2"
-  #   y$CO[x$CO>-0.00001&x$CO<=0.00001]="General"
-  #   y$CO[x$CO>0.00001&x$CO<=0.03]="Good1"
-  #   y$CO[x$CO>0.03]="Good2"
+#     y$CO[x$CO<=-0.03]="Bad1"
+#     y$CO[x$CO>-0.03&x$CO<=-0.00001]="Bad2"
+#     y$CO[x$CO>-0.00001&x$CO<=0.00001]="General"
+#     y$CO[x$CO>0.00001&x$CO<=0.03]="Good1"
+#     y$CO[x$CO>0.03]="Good2"
   
   y$CO[x$CO<=0]="Bad"
   y$CO[x$CO>0]="Good"
@@ -65,7 +66,7 @@ xauusd.discrete<-discrete_index(xauusd.addindex)
 fun.getseries.vectors<-function(vects,first,num.backpoints){#多个vect向量截取first到len=len(vect)-num.backpoints
   return(vects[first:(dim(vects)[1]-num.backpoints+first-1),])
 }
-backpoints<-10
+backpoints<-2
 data.series<-as.data.frame(t(ldply(.data = sapply(backpoints:1,function(i) fun.getseries.vectors(xauusd.discrete,i,backpoints)))))
 colnames(data.series)<-paste(names(xauusd.discrete),rep(1:backpoints,each=length(names(xauusd.discrete))),sep="_")
 rownames(data.series)<-c()
@@ -84,8 +85,10 @@ pair.code<-temp.paircode[temp.paircode[,1]<temp.paircode[,2],]
 pair.index<-expand.grid(names(xauusd.discrete),names(xauusd.discrete))
 father.node<-as.vector(sapply(X = pair.index[,1],FUN = function(i) paste(i,pair.code[,1],sep="_")))
 children.node<-as.vector(sapply(X = pair.index[,2],FUN = function(i) paste(i,pair.code[,2],sep="_")))
+father.node2<-rep("PreState",length(names(xauusd.discrete))*backpoints)
+children.node2<-as.vector(sapply(X = 1:backpoints,FUN = function(i) paste(names(xauusd.discrete),i,sep = "_")))
 
-black.list<-data.frame(from=as.vector(father.node),to=as.vector(children.node))
+black.list<-data.frame(from=c(as.vector(father.node),father.node2),to=c(as.vector(children.node),children.node2))
 
 bn.structure<-hc(train.set,blacklist  =  black.list)#结构训练
 graphviz.plot(bn.structure,  layout  =  "fdp")

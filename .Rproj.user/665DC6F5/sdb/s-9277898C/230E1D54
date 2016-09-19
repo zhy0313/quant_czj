@@ -1,0 +1,18 @@
+{
+    "contents" : "# this is a test\n# this is a second test!\n# this is a third test\n# this is a new test\n# i do not know!",
+    "created" : 1474271696108.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "418002607",
+    "id" : "230E1D54",
+    "lastKnownWriteTime" : 1474271720,
+    "path" : "~/quant_czj/test.R",
+    "project_path" : "test.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "type" : "r_source"
+}

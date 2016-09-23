@@ -4,14 +4,10 @@ library(bnlearn)
 library(Rgraphviz)
 library(gRain)
 
-xauusd.all<-read.csv("F:/datasets/XAUUSD1.csv",header = FALSE)
-xauusd.all<-read.csv("F:/datasets/stock_600000.csv",header = FALSE)
-names(xauusd.all)<-c("Date","Hours","Open","High","Low","Close","Volumes")
-xauusd<-xauusd.all
-
 # 计算新指标：移动均线指标MA，相邻指标NE
 build_new_index<-function(x){
-  x$CO<-(x$Close-x$Open)/(x$Close+x$Open)*2
+  # x$CO<-(x$Close-x$Open)/(x$Close+x$Open)*2
+  x$CO<-c(NA,diff(x$Close))
   temp.CloseMinusOpen<-abs(x$Close-x$Open)
   temp.CloseMinusOpen[temp.CloseMinusOpen<0.001]<-0.001
   x$UStoCO<-(x$High-apply(X = matrix(c(x$Open,x$Close),ncol=2),MARGIN = 1,max))/temp.CloseMinusOpen
@@ -57,24 +53,32 @@ discrete_index<-function(x){
   y$location[x$location<=0]="Low"
   return(y)
 }
-
-xauusd.addindex<-build_new_index(xauusd)
-# xauusd.discrete<-as.data.frame(apply(X = discrete_index(xauusd.addindex),MARGIN = 2,function(i) factor(i)))
-xauusd.discrete<-discrete_index(xauusd.addindex)
-
 # 构造时间序列
 fun.getseries.vectors<-function(vects,first,num.backpoints){#多个vect向量截取first到len=len(vect)-num.backpoints
   return(vects[first:(dim(vects)[1]-num.backpoints+first-1),])
 }
+fun.change.series.data<-function(vectors.data,backpoints){
+  res<-as.data.frame(t(ldply(.data = sapply(backpoints:1,function(i) fun.getseries.vectors(vectors.data,i,backpoints)))))
+  colnames(res)<-paste(names(vectors.data),rep(1:backpoints,each=length(names(vectors.data))),sep="_")
+  rownames(res)<-c()
+  return(res)
+}
+
+
+xauusd.all<-read.csv("F:/datasets/XAUUSD1.csv",header = FALSE)
+# xauusd.all<-read.csv("F:/datasets/stock_600000.csv",header = FALSE)
+names(xauusd.all)<-c("Date","Hours","Open","High","Low","Close","Volumes")
+xauusd<-xauusd.all[1:10000,]
+
+xauusd.addindex<-build_new_index(xauusd)
+xauusd.discrete<-discrete_index(xauusd.addindex)
 backpoints<-2
-data.series<-as.data.frame(t(ldply(.data = sapply(backpoints:1,function(i) fun.getseries.vectors(xauusd.discrete,i,backpoints)))))
-colnames(data.series)<-paste(names(xauusd.discrete),rep(1:backpoints,each=length(names(xauusd.discrete))),sep="_")
-rownames(data.series)<-c()
+data.series<-fun.change.series.data(xauusd.discrete,backpoints)
 data.series$PreState<-as.factor(c(as.character(data.series[2:dim(data.series)[1],1]),NA))
 data.series.complete<-data.series[complete.cases(data.series),]
 
 # 构造训练集和测试集
-loc.train<-sample(x=dim(data.series.complete)[1],size  =  1/10*dim(data.series.complete)[1])
+loc.train<-sample(x=dim(data.series.complete)[1],size  =  1/20*dim(data.series.complete)[1])
 train.set<-data.series.complete[loc.train,]
 test.set<-data.series.complete[-loc.train,]
 

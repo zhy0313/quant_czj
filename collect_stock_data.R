@@ -1,7 +1,6 @@
 # 下载数据到本地数据库
 rm(list=ls())
 library(quantmod)
-library(quantmod)
 library(RODBC)
 con<-odbcConnect("mysql_data",uid="root",pwd="198849",DBMSencoding="utf8")
 sqlQuery(con,"USE quantitative_investment")

@@ -1,1 +1,4 @@
 1.查看加载的package: (.package())
+2.Markdown用来生成报告
+3.R开发通用模块或函数：使用source，或者编译成package
+4.R的排序函数：sort,rank,order
